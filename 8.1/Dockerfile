@@ -3,7 +3,7 @@ MAINTAINER alfin <kahid.na@gmail.com>
 
 ENV OS_LOCALE="en_US.UTF-8" \
     DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y locales && locale-gen ${OS_LOCALE}
+RUN apt-get update && apt-get install -y locales wget lsb-release && locale-gen ${OS_LOCALE}
 ENV LANG=${OS_LOCALE} \
     LANGUAGE=${OS_LOCALE} \
     LC_ALL=${OS_LOCALE}
@@ -13,7 +13,7 @@ ENV PHP_RUN_DIR=/run/php \
     PHP_CONF_DIR=/etc/php/8.1 \
     PHP_DATA_DIR=/var/lib/php
 
-RUN BUILD_DEPS='software-properties-common wget python3-launchpadlib' \
+RUN BUILD_DEPS='software-properties-common python3-launchpadlib' \
     dpkg-reconfigure locales  && apt-get install --no-install-recommends -y $BUILD_DEPS \
     && wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
     && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list \
