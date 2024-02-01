@@ -1,5 +1,5 @@
-FROM ubuntu:bionic
-MAINTAINER romeOz <serggalka@gmail.com>
+FROM debian:12
+MAINTAINER alfin <kahid.na@gmail.com>
 
 ENV OS_LOCALE="en_US.UTF-8" \
     DEBIAN_FRONTEND=noninteractive
@@ -13,20 +13,14 @@ ENV PHP_RUN_DIR=/run/php \
     PHP_CONF_DIR=/etc/php/8.1 \
     PHP_DATA_DIR=/var/lib/php
 
-RUN \
-    BUILD_DEPS='software-properties-common' \
-    && dpkg-reconfigure locales \
-    # Install common libraries
-    && apt-get install --no-install-recommends -y $BUILD_DEPS \
-    && add-apt-repository -y ppa:ondrej/php \
+RUN BUILD_DEPS='software-properties-common wget python3-launchpadlib' \
+    dpkg-reconfigure locales  && apt-get install --no-install-recommends -y $BUILD_DEPS \
+    && wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
+    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list \
     && apt-get update \
-    # Install PHP libraries
-    # php8.1-mcrypt not support and move to PECL. Use extension Sodium: http://php.net/manual/book.sodium.php
-    && apt-get install -y curl php8.1-fpm php8.1-cli php8.1-readline php8.1-mbstring php8.1-zip php8.1-intl php8.1-xml php8.1-curl php8.1-gd php8.1-pgsql php8.1-mysql php-pear \
-    # Install composer
-    && curl -sS https://getcomposer.org/installer | php -- --version=2.1.2 --install-dir=/usr/local/bin --filename=composer \
+    && apt-get install -y curl php8.1-fpm php8.1-cli php8.1-readline php8.1-mbstring php8.1-zip php8.1-intl php8.1-xml php8.1-curl php8.1-gd php8.1-pgsql php8.1-mysql php-pear php8.1-imagick \
+    && curl -sS https://getcomposer.org/installer | php -- --version=2.6.6 --install-dir=/usr/local/bin --filename=composer \
     && mkdir -p ${PHP_LOG_DIR} ${PHP_RUN_DIR} \
-    # Cleaning
     && apt-get purge -y --auto-remove $BUILD_DEPS \
     && apt-get autoremove -y && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
